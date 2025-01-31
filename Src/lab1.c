@@ -1,41 +1,49 @@
 #include <assert.h>
 #include <stm32f0xx.h>
-#include <stm32f0xx_hal_gpio.h>
 
-int lab1_main(void) {
-    HAL_Init(); // Reset of all peripherals, init the Flash and Systick
-    SystemClock_Config(); // Configure the system clock
+int lab1_main(void)
+{
+    HAL_Init(); // Reset peripherals, initialize Flash and Systick
+    SystemClock_Config(); // Configure system clock
 
-    // Enable GPIOC and GPIOA clocks
-    RCC->AHBENR |= RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIOAEN;
+    // Enable GPIOC and GPIOA clocks (for LEDs and button)
+    RCC->AHBENR |= (RCC_AHBENR_GPIOCEN); // Enable GPIOC clock
+    RCC->AHBENR |= (RCC_AHBENR_GPIOAEN); // Enable GPIOA clock
     assert(RCC->AHBENR & RCC_AHBENR_GPIOCEN);
     assert(RCC->AHBENR & RCC_AHBENR_GPIOAEN);
 
-    // Initialize LED Pins (PC6, PC7, PC8, PC9)
-    My_HAL_GPIO_Init(GPIOC, 6);  // Red LED
-    My_HAL_GPIO_Init(GPIOC, 7);  // Blue LED
-    My_HAL_GPIO_Init(GPIOC, 8);  // Orange LED
-    My_HAL_GPIO_Init(GPIOC, 9);  // Green LED
+    // Initialize LED pins (PC6, PC7, PC8, PC9)
+    My_HAL_GPIO_Init(GPIOC, 6);
+    My_HAL_GPIO_Init(GPIOC, 7);
+    My_HAL_GPIO_Init(GPIOC, 8);
+    My_HAL_GPIO_Init(GPIOC, 9);
 
-    // Initialize USER Button (PA0)
-    My_HAL_GPIO_Init(GPIOA, 0);  // User Button
+    // Initialize USER button (PA0)
+    My_HAL_GPIO_Init(GPIOA, 0);
 
-    // Set Initial LED States
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);  // PC6 ON
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);  // PC8 ON
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);  // PC7 OFF
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_RESET);  // PC9 OFF
+    // Set initial LED state (PC6 & PC8 ON, PC7 & PC9 OFF)
+    My_HAL_GPIO_WritePin(GPIOC, 6, GPIO_PIN_SET);
+    My_HAL_GPIO_WritePin(GPIOC, 8, GPIO_PIN_SET);
+    My_HAL_GPIO_WritePin(GPIOC, 7, GPIO_PIN_RESET);
+    My_HAL_GPIO_WritePin(GPIOC, 9, GPIO_PIN_RESET);
+
+    assert(My_HAL_GPIO_ReadPin(GPIOC, 6) == GPIO_PIN_SET);
+    assert(My_HAL_GPIO_ReadPin(GPIOC, 8) == GPIO_PIN_SET);
+    assert(My_HAL_GPIO_ReadPin(GPIOC, 7) == GPIO_PIN_RESET);
+    assert(My_HAL_GPIO_ReadPin(GPIOC, 9) == GPIO_PIN_RESET);
 
     // LED & button interaction loop
-    while (1) {
+    while (1)
+    {
         HAL_Delay(200); // Wait 200ms
 
         // Check if button is pressed
-        if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) { // If PA0 (USER button) is HIGH
-            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6);
-            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7);
-            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
-            HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
+        if (My_HAL_GPIO_ReadPin(GPIOA, 0) == GPIO_PIN_SET)
+        {
+            My_HAL_GPIO_TogglePin(GPIOC, 6);
+            My_HAL_GPIO_TogglePin(GPIOC, 7);
+            My_HAL_GPIO_TogglePin(GPIOC, 8);
+            My_HAL_GPIO_TogglePin(GPIOC, 9);
         }
     }
 }
