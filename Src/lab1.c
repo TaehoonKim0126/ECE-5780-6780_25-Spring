@@ -33,32 +33,29 @@ int lab1_main(void) {
     assert(My_HAL_GPIO_ReadPin(GPIOC, 6) == GPIO_PIN_SET);
     assert(My_HAL_GPIO_ReadPin(GPIOC, 7) == GPIO_PIN_RESET);
 
-    uint32_t debouncer = 0;  // Button debounce variable
-    uint8_t button_pressed = 0;  // Edge detection variable
+    uint32_t debouncer = 0; // Button debounce variable
 
     // LED & button interaction loop
     while (1) {
-        // Shift the debouncer variable left
+        // Shift debouncer register left
         debouncer = (debouncer << 1);
-
+        
         // Read button state
         if (My_HAL_GPIO_ReadPin(GPIOA, 0) == GPIO_PIN_SET) {
             debouncer |= 0x01; // Set lowest bit if button is pressed
         }
 
-        // Debouncing logic: Detect transition from LOW to HIGH (steady press)
-        if ((debouncer == 0x7FFFFFFF) && (button_pressed == 0)) { 
-            button_pressed = 1; // Prevent multiple toggles per press
-            My_HAL_GPIO_TogglePin(GPIOC, 6);
-            My_HAL_GPIO_TogglePin(GPIOC, 7);
-        }
-
-        // Reset edge detection when button is released
-        if (debouncer == 0x00000000) {
-            button_pressed = 0;
+        // Button is **steadily pressed**
+        if (debouncer == 0x7FFFFFFF) { 
+            // **Keep blinking while button is held**
+            while (My_HAL_GPIO_ReadPin(GPIOA, 0) == GPIO_PIN_SET) {
+                My_HAL_GPIO_TogglePin(GPIOC, 6);
+                My_HAL_GPIO_TogglePin(GPIOC, 7);
+                HAL_Delay(200); // Blinking speed
+            }
         }
 
         // Short delay for stability
-        HAL_Delay(10);
+        HAL_Delay(5);
     }
 }
