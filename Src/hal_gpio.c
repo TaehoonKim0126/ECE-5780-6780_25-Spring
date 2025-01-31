@@ -2,31 +2,25 @@
 #include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_gpio.h>
 
-// Initialize GPIO pin
-void My_HAL_GPIO_Init(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
-    // Set MODER (Output mode for LEDs, Input mode for button)
-    if (GPIOx == GPIOC) {
-        GPIOx->MODER &= ~(3 << (GPIO_Pin * 2)); // Clear mode bits
-        GPIOx->MODER |= (1 << (GPIO_Pin * 2));  // Set output mode
-    } else if (GPIOx == GPIOA && GPIO_Pin == 0) {
-        GPIOx->MODER &= ~(3 << (GPIO_Pin * 2)); // Set input mode
+ void My_HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
+    // Set pin mode
+    GPIOx->MODER &= ~(3 << (GPIO_Init->Pin * 2));  // Clear mode bits
+    GPIOx->MODER |= (GPIO_Init->Mode << (GPIO_Init->Pin * 2));
+
+    // Configure output type (Push-Pull or Open-Drain)
+    if (GPIO_Init->Mode == GPIO_MODE_OUTPUT_PP || GPIO_Init->Mode == GPIO_MODE_AF_PP) {
+        GPIOx->OTYPER &= ~(1 << GPIO_Init->Pin); // Push-pull
+    } else if (GPIO_Init->Mode == GPIO_MODE_OUTPUT_OD || GPIO_Init->Mode == GPIO_MODE_AF_OD) {
+        GPIOx->OTYPER |= (1 << GPIO_Init->Pin); // Open-drain
     }
 
-    // Set OTYPER (Push-Pull mode for LEDs, not needed for input)
-    if (GPIOx == GPIOC) {
-        GPIOx->OTYPER &= ~(1 << GPIO_Pin);
-    }
+    // Configure pull-up/pull-down resistors
+    GPIOx->PUPDR &= ~(3 << (GPIO_Init->Pin * 2)); // Clear existing pull-up/down
+    GPIOx->PUPDR |= (GPIO_Init->Pull << (GPIO_Init->Pin * 2));
 
-    // Set OSPEEDR (Low speed for LEDs and button)
-    GPIOx->OSPEEDR &= ~(3 << (GPIO_Pin * 2));
-
-    // Set PUPDR (No pull-up/down for LEDs, pull-down for button)
-    if (GPIOx == GPIOC) {
-        GPIOx->PUPDR &= ~(3 << (GPIO_Pin * 2)); // No pull-up/down
-    } else if (GPIOx == GPIOA && GPIO_Pin == 0) {
-        GPIOx->PUPDR &= ~(3 << (GPIO_Pin * 2)); // Clear
-        GPIOx->PUPDR |= (2 << (GPIO_Pin * 2));  // Enable pull-down
-    }
+    // Configure speed
+    GPIOx->OSPEEDR &= ~(3 << (GPIO_Init->Pin * 2)); // Clear speed bits
+    GPIOx->OSPEEDR |= (GPIO_Init->Speed << (GPIO_Init->Pin * 2));
 }
 
 // Reset GPIO pin configurations
