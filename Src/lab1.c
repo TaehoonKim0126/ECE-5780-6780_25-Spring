@@ -2,13 +2,26 @@
 #include <assert.h>
 
 void SystemClock_Config(void);
+void My_HAL_RCC_GPIOC_CLK_ENABLE(void);
 
 int lab1_main(void)
 {
     HAL_Init();
     SystemClock_Config();
 
-    __HAL_RCC_GPIOC_CLK_ENABLE();
+    //Removce __HAL_
+    /// __HAL_RCC_GPIOC_CLK_ENABLE();
+     // (2) Replace with our own function
+    My_HAL_RCC_GPIOC_CLK_ENABLE();
+
+void My_HAL_RCC_GPIOC_CLK_ENABLE(void)
+{
+    // Enable clock for GPIOC using bitwise operation
+    RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+    // Optional: assert to verify it's really set
+    assert((RCC->AHBENR & RCC_AHBENR_GPIOCEN) == RCC_AHBENR_GPIOCEN);
+}
+
     assert((RCC->AHBENR & RCC_AHBENR_GPIOCEN) == RCC_AHBENR_GPIOCEN);
 
     GPIO_InitTypeDef initStr = {
