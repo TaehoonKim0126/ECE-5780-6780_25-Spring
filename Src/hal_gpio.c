@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_gpio.h>
+#include <assert.h>
 
 void My_HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 {
@@ -79,10 +80,16 @@ void Configure_EXTI_UserButton(void)
     // (Optionally) Clear any pending flag.
     EXTI->PR |= (1 << 0);
 
+    
     // Enable clock for SYSCFG peripheral.
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+    assert((SYSCFG->EXTICR[0] & 0xF) == 0);
+
     // Configure SYSCFG to route PA0 to EXTI line 0.
     // Clear the bits for EXTI0 (in EXTICR[0]) then set them to map port A (value 0).
     SYSCFG->EXTICR[0] &= ~(0xF);
     SYSCFG->EXTICR[0] |= 0x0;  // Port A mapping; 0 is typically for PA.
+   
+    assert((SYSCFG->EXTICR[0] & 0xF) == 0x0);
 }
