@@ -1,7 +1,12 @@
 #include <stm32f0xx_hal.h>
 #include <assert.h>
 #include "hal_gpio.h"
+#ifndef MAIN_H
+#define MAIN_H
 
+void SystemClock_Config(void);
+
+#endif /* MAIN_H */
 static inline void My_HAL_RCC_GPIOA_CLK_ENABLE(void)
 {
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
@@ -14,7 +19,6 @@ static inline void My_HAL_RCC_GPIOC_CLK_ENABLE(void)
     assert((RCC->AHBENR & RCC_AHBENR_GPIOCEN) == RCC_AHBENR_GPIOCEN);
 }
 
-void SystemClock_Config(void);
 
 int lab2_main(void)
 {
@@ -24,7 +28,9 @@ int lab2_main(void)
     My_HAL_RCC_GPIOA_CLK_ENABLE();
     My_HAL_RCC_GPIOC_CLK_ENABLE();
 
-    // Configure three LED pins:
+    // RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+    // RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+    
     // PC6  - Red LED (toggled in main loop)
     // PC7  - Blue LED (toggled in SysTick interrupt)
     // PC9  - Green LED (to remain high)

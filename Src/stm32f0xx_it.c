@@ -20,6 +20,7 @@
 #include "main.h"
 #include <stm32f0xx_hal.h>
 #include <stm32f0xx_it.h>
+#include "hal_gpio.h"
 
 /******************************************************************************/
 /*            Cortex-M0 Processor Exceptions Handlers                         */
@@ -73,6 +74,14 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
     HAL_IncTick();
+    static volatile uint32_t tickCount = 0;
+    tickCount++;
+
+     if (tickCount >= 200)
+    {
+        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7);  // Toggle blue LED on PC7
+        tickCount = 0;  // Reset the counter
+    }
 }
 
 /******************************************************************************/
