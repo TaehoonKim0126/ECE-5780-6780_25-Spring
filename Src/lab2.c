@@ -1,0 +1,51 @@
+#include <stm32f0xx_hal.h>
+#include <assert.h>
+#include "hal_gpio.h"
+
+static inline void My_HAL_RCC_GPIOA_CLK_ENABLE(void)
+{
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+    assert((RCC->AHBENR & RCC_AHBENR_GPIOAEN) == RCC_AHBENR_GPIOAEN);
+}
+
+static inline void My_HAL_RCC_GPIOC_CLK_ENABLE(void)
+{
+    RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+    assert((RCC->AHBENR & RCC_AHBENR_GPIOCEN) == RCC_AHBENR_GPIOCEN);
+}
+
+void SystemClock_Config(void);
+
+int lab2_main(void)
+{
+    HAL_Init();
+    SystemClock_Config();
+
+    My_HAL_RCC_GPIOA_CLK_ENABLE();
+    My_HAL_RCC_GPIOC_CLK_ENABLE();
+
+    // Configure three LED pins:
+    // PC6  - Red LED (toggled in main loop)
+    // PC7  - Blue LED (toggled in SysTick interrupt)
+    // PC9  - Green LED (to remain high)
+    GPIO_InitTypeDef ledInit;
+    ledInit.Pin   = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_9;
+    ledInit.Mode  = GPIO_MODE_OUTPUT_PP;
+    ledInit.Pull  = GPIO_NOPULL;
+    ledInit.Speed = GPIO_SPEED_FREQ_LOW;
+    My_HAL_GPIO_Init(GPIOC, &ledInit);
+
+    // Set the green LED (PC9) high.
+    My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);
+
+    // Start with red LED on and blue LED off.
+    My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);   // Red LED on
+    My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET); // Blue LED off
+
+    // Main loop: toggle red LED every 500 ms.
+    while (1)
+    {
+        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_6); // Toggle red LED (PC6)
+        HAL_Delay(500);                         // Delay about 500 ms
+    }
+}
