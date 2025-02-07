@@ -107,6 +107,18 @@ void EXTI0_1_IRQHandler(void)
         /// PC8 (orange LED)PC9 (green LED)
         My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
         My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
+        
+        volatile uint32_t delaycount;
+        for (delaycount = 0; delaycount < 1500000; delaycount++)
+        {
+          // DO nothing just delay on going
+        }
+
+        // Toggle the LEDs again after the delay to indicate the end of the long-running interrupt.
+        // Add a second LED toggle so that the green and orange LEDs should exchange once before
+        // and after the delay loop.
+        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
 
         // Clear pending flag for EXTI line 0.
         EXTI->PR |= (1 << 0);

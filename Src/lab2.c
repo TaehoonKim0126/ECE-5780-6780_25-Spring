@@ -32,7 +32,8 @@ int lab2_main(void)
 
     // PC6  - Red LED (toggled in main loop)
     // PC7  - Blue LED (toggled in SysTick interrupt)
-    // PC9  - Green LED (to remain high)
+    // PC8  - Orange LED
+    // PC9  - Green LED 
     GPIO_InitTypeDef ledInit;
     ledInit.Pin   = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9;
     ledInit.Mode  = GPIO_MODE_OUTPUT_PP;
