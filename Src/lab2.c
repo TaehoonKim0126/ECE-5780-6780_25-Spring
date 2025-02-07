@@ -1,5 +1,3 @@
-#ifndef MAIN_H
-#define MAIN_H
 #include <stm32f0xx_hal.h>
 #include <assert.h>
 #include "hal_gpio.h"
@@ -9,8 +7,6 @@ void SystemClock_Config(void);
 
 // Configure EXTI for the user button on PA0.
 void Configure_EXTI_UserButton(void);
-
-#endif
 
 
 static inline void My_HAL_RCC_GPIOA_CLK_ENABLE(void)
