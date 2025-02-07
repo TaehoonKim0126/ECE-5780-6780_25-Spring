@@ -59,7 +59,7 @@ int lab2_main(void)
     NVIC_EnableIRQ(SysTick_IRQn);
 
     // Exit priority: 1 (high priority)
-    NVIC_SetPriority(EXTI0_1_IRQn, 1);
+    NVIC_SetPriority(EXTI0_1_IRQn, 3);
     NVIC_EnableIRQ(EXTI0_1_IRQn);
 
     // Start with red LED on and blue LED off.
