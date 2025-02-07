@@ -54,7 +54,11 @@ int lab2_main(void)
     assert((EXTI->IMR & (1 << 0)) != 0);
     assert((EXTI->RTSR & (1 << 0)) != 0);
     
-    // NVIC configuration: Enable EXTI0_1 interrupt.
+     // SysTick priority: 2 
+    NVIC_SetPriority(SysTick_IRQn, 2);
+    NVIC_EnableIRQ(SysTick_IRQn);
+
+    // Exit priority: 1 (high priority)
     NVIC_SetPriority(EXTI0_1_IRQn, 1);
     NVIC_EnableIRQ(EXTI0_1_IRQn);
 
