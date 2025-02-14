@@ -12,7 +12,7 @@ void GPIO_Init_TIM3_PWM(void)
     GPIOC->MODER &= ~((3 << (2 * 6)) | (3 << (2 * 7))); // Clear mode bits
     GPIOC->MODER |= ((2 << (2 * 6)) | (2 << (2 * 7)));  // Set to AF mode
 
-    // Set PC6 (TIM3_CH1) and PC7 (TIM3_CH2) to AF1
+    // Set PC6 (TIM3_CH1) and PC7 (TIM3_CH2) to AF0
     GPIOC->AFR[0] &= ~((0xF << (4 * 6)) | (0xF << (4 * 7))); 
     // GPIOC->AFR[0] |= ((1 << (4 * 6)) | (1 << (4 * 7))); // AF1 (TIM3_CH1, TIM3_CH2)
 }
