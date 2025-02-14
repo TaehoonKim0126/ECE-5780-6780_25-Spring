@@ -27,9 +27,9 @@ void TIM3_PWM_Init(void)
 
     // Set Prescaler (PSC) and Auto-Reload Register (ARR) for 800 Hz PWM
     // PSC = 99 -> 8 MHz / (99+1) = 80 kHz
-    // ARR = 99 -> 80 kHz / (99+1) = 800 Hz PWM frequency
+    // ARR = 100 -> 80 kHz / (99+1) = 800 Hz PWM frequency
     TIM3->PSC = 99;
-    TIM3->ARR = 99;
+    TIM3->ARR = 100;
 
     // Configure TIM3 Channel 1 to PWM Mode 2 (OC1M = 111)
     // Configure TIM3 Channel 2 to PWM Mode 1 (OC2M = 110)
@@ -44,8 +44,8 @@ void TIM3_PWM_Init(void)
     TIM3->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E;
 
     // Set initial duty cycle to 20%
-    TIM3->CCR1 = (20 * TIM3->ARR) / 100; // 20% duty cycle for CH1 (PWM Mode 2)
-    TIM3->CCR2 = (20 * TIM3->ARR) / 100; // 20% duty cycle for CH2 (PWM Mode 1)
+    TIM3->CCR1 = 100; // 20% duty cycle for CH1 (PWM Mode 2)
+    TIM3->CCR2 = 10; // 20% duty cycle for CH2 (PWM Mode 1)
 
     // Enable TIM3 counter
     TIM3->CR1 |= TIM_CR1_CEN;
