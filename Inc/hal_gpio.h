@@ -9,3 +9,5 @@ void My_HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState 
 void My_HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void My_HAL_TIM2_Init_4Hz(void);
 void TIM2_IRQHandler(void);
+void My_HAL_TIM3_PWM_Init(void);
+void My_HAL_TIM3_SetDutyCycle(uint8_t channel, uint16_t duty_cycle);
