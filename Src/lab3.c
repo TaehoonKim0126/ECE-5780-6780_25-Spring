@@ -69,14 +69,16 @@ int lab3_main(void)
         for (uint16_t i = 0; i <= 100; i += 5)
         {
             TIM3->CCR1 = (i * TIM3->ARR) / 100;  // CH1 (Red LED, PWM Mode 2)
-            TIM3->CCR2 = ((100 - i) * TIM3->ARR) / 100; // CH2 (Blue LED, PWM Mode 1)
+            TIM3->CCR2 = (i * TIM3->ARR) / 100; // CH2 (Blue LED, PWM Mode 1)
             HAL_Delay(50);
         }
         for (uint16_t i = 100; i >= 0; i -= 5)
         {
             TIM3->CCR1 = (i * TIM3->ARR) / 100;  // CH1 (Red LED, PWM Mode 2)
-            TIM3->CCR2 = ((100 - i) * TIM3->ARR) / 100; // CH2 (Blue LED, PWM Mode 1)
+            TIM3->CCR2 = (i * TIM3->ARR) / 100; // CH2 (Blue LED, PWM Mode 1)
             HAL_Delay(50);
         }
+
+      
     }
 }
