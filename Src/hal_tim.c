@@ -6,40 +6,47 @@
 
 void My_HAL_TIM2_Init_4Hz(void)
 {
-    // Enable clock for TIM2 in RCC
-    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; 
+    // Enable TIM2 clock
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+    while (!(RCC->APB1ENR & RCC_APB1ENR_TIM2EN));
 
-    // Optionally check if it's set
-    assert((RCC->APB1ENR & RCC_APB1ENR_TIM2EN) == RCC_APB1ENR_TIM2EN);
+  
+    TIM2->CR1 &= ~TIM_CR1_CEN; // Disable before configuration
 
-    //    Configure Prescaler (PSC) and Auto-reload (ARR) for 4 Hz
-    //    PSC + 1 = 8000 => 8 MHz / 8000 = 1 kHz
-    //    ARR = 250 => 1 kHz / 250 = 4 Hz
-    TIM2->PSC = 7999;     // (PSC + 1) = 8000
-    TIM2->ARR = 250;      // 1000 Hz / 250 = 4 Hz
+  
+    TIM2->PSC = 7999;  // 8 MHz / 8000 = 1 kHz (1 ms per tick)
+    TIM2->ARR = 250;    // 1 kHz / 250 = 4 Hz (250 ms per interrupt)
 
-    // Enable update interrupt (UIE) in DIER
+    // Update Interrupt act
     TIM2->DIER |= TIM_DIER_UIE;
 
-    // Enable the counter (CEN) in CR1
+    // NVIC
+    NVIC_EnableIRQ(TIM2_IRQn);
+
+    // TIM2
     TIM2->CR1 |= TIM_CR1_CEN;
 
-    // Enable TIM2 interrupt in NVIC
-    NVIC_SetPriority(TIM2_IRQn, 2);
-    NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 // interrupt handler
 void TIM2_IRQHandler(void)
 {
-    // Check if update interrupt flag is set
-    if (TIM2->SR & TIM_SR_UIF)
+    if (TIM2->SR & TIM_SR_UIF) 
     {
-        // Clear the update interrupt flag (UIF)
+        GPIOC->ODR ^= (1 << 9);  // Green LED Toggle
+        GPIOC->ODR ^= (1 << 8);  // Orange LED Toggle
         TIM2->SR &= ~TIM_SR_UIF;
-        
-        // Toggle the on-board LEDs PC8 (orange) and PC9 (green)
-        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
-        My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
     }
+static unsigned int count = 0;  // counts from 0 to 200
+count = (count + 1) % 201;  // wrap around at 201
+
+//The 'counter' variable counts up to 200, then resets. 
+// If the counter is 0-100, 'value' matches the counter, 
+// otherwise, it decreases back from 100 to 0. This creates a triangle wave, and *value' updates both
+// 'CCR1' and 'CCR2' to adjust the PWM duty cycle.
+unsigned int var = (count <= 100) ? count : (200 - count);
+
+TIM3->CCR1 = var;
+TIM3->CCR2 = var;
+
 }

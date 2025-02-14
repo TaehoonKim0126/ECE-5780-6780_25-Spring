@@ -14,12 +14,11 @@ void GPIO_Init_TIM3_PWM(void)
 
     // Set PC6 (TIM3_CH1) and PC7 (TIM3_CH2) to AF0
     GPIOC->AFR[0] &= ~((0xF << (4 * 6)) | (0xF << (4 * 7))); 
+
+    /// AF1 is not working w/ my board..
     // GPIOC->AFR[0] |= ((1 << (4 * 6)) | (1 << (4 * 7))); // AF1 (TIM3_CH1, TIM3_CH2)
 }
 
-/**
- * @brief  Initialize TIM3 to generate PWM at 800 Hz.
- */
 void TIM3_PWM_Init(void)
 {
     // Enable TIM3 clock
@@ -38,47 +37,44 @@ void TIM3_PWM_Init(void)
     TIM3->CCMR1 |= (6 << TIM_CCMR1_OC2M_Pos); // CH2: PWM Mode 1 (110)
 
     // Enable Output Compare Preload for both channels
-    TIM3->CCMR1 |= TIM_CCMR1_OC1PE | TIM_CCMR1_OC2PE;
+    TIM3->CCMR1 |= TIM_CCMR1_OC1PE;
+    TIM3->CCMR1 |= TIM_CCMR1_OC2PE;
 
     // Enable CH1 and CH2 outputs
     TIM3->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E;
 
-    // Set initial duty cycle to 20%
-    TIM3->CCR1 = 100; // 20% duty cycle for CH1 (PWM Mode 2)
-    TIM3->CCR2 = 10; // 20% duty cycle for CH2 (PWM Mode 1)
-
     // Enable TIM3 counter
     TIM3->CR1 |= TIM_CR1_CEN;
+    
+    // Set initial duty cycle to 20%
+    TIM3->CCR1 = 80; // 20% duty cycle for CH1 (PWM Mode 2)
+    TIM3->CCR2 = 20; // 20% duty cycle for CH2 (PWM Mode 1)
+    
 }
 
 int lab3_main(void)
 {
     // Initialize HAL and system clock
     HAL_Init();
-    SystemClock_Config();
     
+    SystemClock_Config();
+    RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+    
+    // PC6  - Red LED (toggled in main loop)
+    // PC7  - Blue LED (toggled in SysTick interrupt)
+    // PC8  - Orange LED
+    // PC9  - Green LED 
+    GPIO_InitTypeDef ledInit;
+    ledInit.Pin   = GPIO_PIN_8 | GPIO_PIN_9; 
+    ledInit.Mode  = GPIO_MODE_OUTPUT_PP;
+    ledInit.Pull  = GPIO_NOPULL;
+    ledInit.Speed = GPIO_SPEED_FREQ_LOW;
+    My_HAL_GPIO_Init(GPIOC, &ledInit);
+
+    My_HAL_TIM2_Init_4Hz();
     // Initialize GPIO for PWM
     GPIO_Init_TIM3_PWM();
     
     // Initialize TIM3 PWM
     TIM3_PWM_Init();
-
-    while (1)
-    {
-        // Smoothly increase and decrease brightness of the LED
-        for (uint16_t i = 0; i <= 100; i += 5)
-        {
-            TIM3->CCR1 = (i * TIM3->ARR) / 100;  // CH1 (Red LED, PWM Mode 2)
-            TIM3->CCR2 = (i * TIM3->ARR) / 100; // CH2 (Blue LED, PWM Mode 1)
-            HAL_Delay(50);
-        }
-        for (uint16_t i = 100; i >= 0; i -= 5)
-        {
-            TIM3->CCR1 = (i * TIM3->ARR) / 100;  // CH1 (Red LED, PWM Mode 2)
-            TIM3->CCR2 = (i * TIM3->ARR) / 100; // CH2 (Blue LED, PWM Mode 1)
-            HAL_Delay(50);
-        }
-
-      
-    }
 }
