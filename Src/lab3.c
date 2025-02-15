@@ -44,8 +44,8 @@ void TIM3_PWM_Init(void)
     TIM3->CR1 |= TIM_CR1_CEN;
     
     // Set initial duty cycle to 20%
-    TIM3->CCR1 = 90; // 20% duty cycle for CH1 (PWM Mode 2)
-    TIM3->CCR2 = 10; // 20% duty cycle for CH2 (PWM Mode 1)
+    TIM3->CCR1 = 20; // 20% duty cycle for CH1 (PWM Mode 2)
+    TIM3->CCR2 = 20; // 20% duty cycle for CH2 (PWM Mode 1)
     
 }
 
