@@ -14,9 +14,6 @@ void GPIO_Init_TIM3_PWM(void)
 
     // Set PC6 (TIM3_CH1) and PC7 (TIM3_CH2) to AF0
     GPIOC->AFR[0] &= ~((0xF << (4 * 6)) | (0xF << (4 * 7))); 
-
-    /// AF1 is not working w/ my board..
-    // GPIOC->AFR[0] |= ((1 << (4 * 6)) | (1 << (4 * 7))); // AF1 (TIM3_CH1, TIM3_CH2)
 }
 
 void TIM3_PWM_Init(void)
@@ -25,7 +22,7 @@ void TIM3_PWM_Init(void)
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 
     // Set Prescaler (PSC) and Auto-Reload Register (ARR) for 800 Hz PWM
-    // PSC = 99 -> 8 MHz / (99+1) = 80 kHz
+    // PSC = 99 -> 8 MHz / (99+) = 80 kHz
     // ARR = 100 -> 80 kHz / (99+1) = 800 Hz PWM frequency
     TIM3->PSC = 99;
     TIM3->ARR = 100;
@@ -47,8 +44,8 @@ void TIM3_PWM_Init(void)
     TIM3->CR1 |= TIM_CR1_CEN;
     
     // Set initial duty cycle to 20%
-    TIM3->CCR1 = 80; // 20% duty cycle for CH1 (PWM Mode 2)
-    TIM3->CCR2 = 20; // 20% duty cycle for CH2 (PWM Mode 1)
+    TIM3->CCR1 = 90; // 20% duty cycle for CH1 (PWM Mode 2)
+    TIM3->CCR2 = 10; // 20% duty cycle for CH2 (PWM Mode 1)
     
 }
 
@@ -56,19 +53,18 @@ int lab3_main(void)
 {
     // Initialize HAL and system clock
     HAL_Init();
-    
-    SystemClock_Config();
+
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
     
-    // PC6  - Red LED (toggled in main loop)
-    // PC7  - Blue LED (toggled in SysTick interrupt)
+    // PC6  - Red LED 
+    // PC7  - Blue LED 
     // PC8  - Orange LED
     // PC9  - Green LED 
     GPIO_InitTypeDef ledInit;
     ledInit.Pin   = GPIO_PIN_8 | GPIO_PIN_9; 
     ledInit.Mode  = GPIO_MODE_OUTPUT_PP;
     ledInit.Pull  = GPIO_NOPULL;
-    ledInit.Speed = GPIO_SPEED_FREQ_LOW;
+    ledInit.Speed = GPIO_SPEED_LOW;
     My_HAL_GPIO_Init(GPIOC, &ledInit);
 
     My_HAL_TIM2_Init_4Hz();

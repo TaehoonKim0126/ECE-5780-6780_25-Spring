@@ -6,37 +6,36 @@
 
 void My_HAL_TIM2_Init_4Hz(void)
 {
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
     // Enable TIM2 clock
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-    while (!(RCC->APB1ENR & RCC_APB1ENR_TIM2EN));
-
-  
-    TIM2->CR1 &= ~TIM_CR1_CEN; // Disable before configuration
-
-  
+    
     TIM2->PSC = 7999;  // 8 MHz / 8000 = 1 kHz (1 ms per tick)
     TIM2->ARR = 250;    // 1 kHz / 250 = 4 Hz (250 ms per interrupt)
-
+    
     // Update Interrupt act
     TIM2->DIER |= TIM_DIER_UIE;
-
-    // NVIC
-    NVIC_EnableIRQ(TIM2_IRQn);
-
+    
     // TIM2
     TIM2->CR1 |= TIM_CR1_CEN;
-
+     
+    // NVIC
+    NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 // interrupt handler
 void TIM2_IRQHandler(void)
 {
-    if (TIM2->SR & TIM_SR_UIF) 
-    {
-        GPIOC->ODR ^= (1 << 9);  // Green LED Toggle
-        GPIOC->ODR ^= (1 << 8);  // Orange LED Toggle
-        TIM2->SR &= ~TIM_SR_UIF;
-    }
+
+     if (TIM2->SR & TIM_SR_UIF) 
+     {
+
+       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8 | GPIO_PIN_9);
+      TIM2->SR &= ~TIM_SR_UIF;
+     }
+   
+    
+
 static unsigned int count = 0;  // counts from 0 to 200
 count = (count + 1) % 201;  // wrap around at 201
 
